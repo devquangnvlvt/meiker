@@ -1,0 +1,16 @@
+﻿--- Looking for Hair and Alignment ---
+Index    5 | ID 1334387 | X:    0 Y:    0 | Name: item-1334387
+  - Kid 1334388 | X:  216 Y:   76 | Name: item-1334388
+    - G-Kid 1334389 | X:  216 Y:   76 | Name: #EDE8E7
+  - Kid 1334403 | X:  212 Y:   80 | Name: item-1334403
+    - G-Kid 1334404 | X:  212 Y:   80 | Name: #EDE8E7
+Index   20 | ID 1335929 | X:    0 Y:    0 | Name: item-1335929
+  - Kid 1335930 | X:  218 Y:   63 | Name: item-1335930
+    - G-Kid 1335931 | X:  218 Y:   63 | Name: #BBB1BA
+  - Kid 1335945 | X:  221 Y:   63 | Name: item-1335945
+    - G-Kid 1335946 | X:  221 Y:   63 | Name: #EDE8E7
+Index   26 | ID 1336383 | X:    0 Y:    0 | Name: item-1336383
+  - Kid 1336384 | X:  239 Y:  110 | Name: item-1336384
+    - G-Kid 1336385 | X:  239 Y:  110 | Name: #EDE8E7
+  - Kid 1336399 | X:  215 Y:  134 | Name: item-1336399
+    - G-Kid 1336400 | X:  215 Y:  134 | Name: #EDE8E7

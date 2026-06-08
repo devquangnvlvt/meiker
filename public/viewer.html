@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Studio</title>
+    <link rel="stylesheet" href="viewer.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Left Panel: color swatches -->
+        <div id="color-panel">
+            <div id="color-panel-list"></div>
+        </div>
+
+        <!-- Center: canvas -->
+        <div id="canvas-wrapper">
+            <div id="canvas-container"></div>
+            <div id="canvas-actions">
+                <button id="btn-reset" title="Reset">↺</button>
+                <button id="btn-random" title="Randomize">🎲</button>
+                <button id="btn-download" title="Download" class="primary">⬇</button>
+            </div>
+        </div>
+
+        <!-- Right Panel: category tabs + item grid -->
+        <div id="right-panel">
+            <div id="tabs-container"></div>
+            <div id="items-panel">
+                <!-- Each row: [small color dot] [item image] -->
+                <div id="items-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="viewer.js"></script>
+</body>
+</html>

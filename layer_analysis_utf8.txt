@@ -1,0 +1,23 @@
+﻿Total image layers found: 2548
+
+--- Top layers by visibility and area ---
+ID 1336724 | Visible: True  | X:    0 Y:    0 | W:  600 H:  800 | Name: #EDE8E7
+ID 1336756 | Visible: True  | X:    0 Y:    0 | W:  600 H:  800 | Name: #F0BD75
+ID 1336764 | Visible: True  | X:    0 Y:    0 | W:  600 H:  800 | Name: #B1D287
+ID 1336772 | Visible: True  | X:    0 Y:    0 | W:  600 H:  800 | Name: #73B3C6
+ID 1336781 | Visible: True  | X:    0 Y:    0 | W:  600 H:  800 | Name: item-1336781
+ID 1336753 | Visible: True  | X:   84 Y:  128 | W:  434 H:  536 | Name: #EDE8E7
+ID 1334989 | Visible: True  | X:   58 Y:  324 | W:  495 H:  436 | Name: #201F25
+ID 1336750 | Visible: True  | X:   96 Y:  140 | W:  410 H:  506 | Name: #EDE8E7
+ID 1336747 | Visible: True  | X:  125 Y:  125 | W:  350 H:  550 | Name: #EDE8E7
+ID 1334970 | Visible: True  | X:   72 Y:  324 | W:  463 H:  415 | Name: #EDE8E7
+ID 1334984 | Visible: True  | X:   72 Y:  324 | W:  463 H:  415 | Name: #AE557B
+ID 1336744 | Visible: True  | X:  134 Y:  134 | W:  332 H:  532 | Name: #F6F1F0
+ID 1336231 | Visible: True  | X:  179 Y:   68 | W:  245 H:  702 | Name: #D19772
+ID 1336083 | Visible: True  | X:  182 Y:   90 | W:  240 H:  677 | Name: ##ACCEDE
+ID 1336085 | Visible: True  | X:  187 Y:   95 | W:  235 H:  640 | Name: #FFF4F0
+ID 1336376 | Visible: True  | X:   45 Y:  376 | W:  418 H:  354 | Name: #B3D873
+ID 1336078 | Visible: True  | X:  182 Y:  168 | W:  240 H:  599 | Name: #45434F
+ID 1336716 | Visible: True  | X:  128 Y:  263 | W:  344 H:  412 | Name: #AE557B
+ID 1335983 | Visible: True  | X:  189 Y:  190 | W:  228 H:  567 | Name: #100E16
+ID 1336097 | Visible: True  | X:  179 Y:  248 | W:  245 H:  522 | Name: #ACCEDE

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meiker Data Scraper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="logo">
+                    <span class="logo-icon">🎨</span>
+                    <div>
+                        <h1>Meiker Data Scraper</h1>
+                        <p class="subtitle">Download game data & assets from meiker.io</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-box">
+                <div class="search-input-group">
+                    <label for="gameId">Nhập Game ID</label>
+                    <div class="input-row">
+                        <span class="input-prefix">meiker.io/play/</span>
+                        <input type="text" id="gameId" placeholder="12475" autofocus>
+                        <span class="input-suffix">/online.html</span>
+                    </div>
+                    <p class="hint">Ví dụ: Nhập <strong>12475</strong> hoặc <strong>13396</strong></p>
+                </div>
+                <button id="btnFetch" onclick="fetchGameData()">
+                    <span class="btn-icon">🔍</span>
+                    Tải Data
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu game...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error hidden"></div>
+
+        <!-- Game Info -->
+        <section id="gameInfo" class="game-info hidden">
+            <div class="game-card">
+                <img id="gameIcon" class="game-icon" src="" alt="icon">
+                <div class="game-details">
+                    <h2 id="gameName"></h2>
+                    <div class="game-meta">
+                        <span id="gameOwner" class="badge"></span>
+                        <span id="gameSize" class="badge"></span>
+                        <span id="gameId_display" class="badge"></span>
+                    </div>
+                    <div id="gameTags" class="tags"></div>
+                </div>
+                <div class="game-actions">
+                    <button class="btn-download-all" onclick="downloadAllData()">
+                        ⬇️ Tải tất cả Assets
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Content -->
+        <section id="dataContent" class="data-content hidden">
+            <!-- Category Tabs -->
+            <div class="tabs-bar" id="tabsBar"></div>
+
+            <!-- Items Grid -->
+            <div class="items-container" id="itemsContainer">
+                <div class="items-header">
+                    <h3 id="categoryTitle">Chọn một danh mục bên trên</h3>
+                    <div class="items-actions">
+                        <button class="btn-sm" onclick="selectAll()">Chọn tất cả</button>
+                        <button class="btn-sm" onclick="deselectAll()">Bỏ chọn</button>
+                        <button class="btn-sm btn-primary" onclick="downloadSelected()">
+                            ⬇️ Tải đã chọn (<span id="selectedCount">0</span>)
+                        </button>
+                    </div>
+                </div>
+                <div class="items-grid" id="itemsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Download Progress -->
+        <div id="downloadProgress" class="download-progress hidden">
+            <div class="progress-header">
+                <span>Đang tải xuống...</span>
+                <span id="progressText">0/0</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div id="downloadLog" class="download-log"></div>
+        </div>
+
+        <!-- Raw JSON Viewer -->
+        <section id="rawJson" class="raw-json hidden">
+            <div class="section-header">
+                <h3>📄 Raw Data JSON</h3>
+                <button class="btn-sm" onclick="copyJson()">📋 Copy JSON</button>
+            </div>
+            <pre id="jsonViewer"></pre>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
