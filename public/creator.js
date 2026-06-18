@@ -37,19 +37,40 @@ async function init() {
     const titleEl = document.getElementById('gameTitle');
     if (titleEl) titleEl.textContent = `🎨 ${manifest.name}`;
 
-    // 2. Build flat z-order list from manifest
-    // Since categories are ordered by Z-index, and options/layers inside are ordered,
-    // we can just flatten them to get a master rendering list.
-    (manifest.categories || []).forEach(cat => {
-      cat.options.forEach(opt => {
-        opt.layers.forEach(layer => {
-          flatLayerList.push(layer);
-        });
-      });
+    // 2. Build flat z-order list from manifest using render_order
+    const rOrder = manifest.render_order || [];
+    const sLayers = manifest.static_layers || [];
+    const cats = manifest.categories || [];
+
+    rOrder.forEach(entry => {
+      if (entry.type === 'static') {
+        const sl = sLayers[entry.index];
+        if (sl) {
+          sl.layers.forEach(layer => {
+            flatLayerList.push(layer);
+          });
+        }
+      } else if (entry.type === 'category') {
+        const cat = cats[entry.index];
+        if (cat) {
+          cat.options.forEach(opt => {
+            opt.layers.forEach(layer => {
+              flatLayerList.push(layer);
+            });
+          });
+        }
+      }
     });
 
     // 3. Build initial selection state (Show ALL categories including fixed ones)
-    uiCats = manifest.categories || [];
+    uiCats = [...(manifest.categories || [])];
+    // Sort UI categories by tab position x_nav ascending (putting fixed ones first)
+    uiCats.sort((a, b) => {
+      if (a.is_fixed && !b.is_fixed) return -1;
+      if (!a.is_fixed && b.is_fixed) return 1;
+      return a.x_nav - b.x_nav;
+    });
+
     uiCats.forEach((cat, idx) => {
       // Default: select first visible option, or null if optional
       const firstVisible = cat.options.findIndex(o => o.visible);
@@ -94,13 +115,8 @@ function buildUI() {
     btn.className = "cat-tab";
     btn.dataset.idx = i;
 
-    const firstOpt = cat.options[0];
-    const thumb = firstOpt?.thumbnail;
-    if (thumb) {
-      btn.innerHTML = `<img src="${LOCAL_BASE}${thumb}" style="width:22px;height:22px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:4px" onerror="this.remove()">${cat.folder}`;
-    } else {
-      btn.textContent = cat.folder;
-    }
+    const iconPath = `${cat.folder}/nav.png`;
+    btn.innerHTML = `<img src="${LOCAL_BASE}${iconPath}" style="width:22px;height:22px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:4px" onerror="this.remove()">${cat.label || cat.name || cat.folder}`;
 
     tabsEl.appendChild(btn);
   });
@@ -238,12 +254,10 @@ async function renderCanvas() {
 function buildVisibleSet() {
   const ids = new Set();
 
-  // 1. Static layers from manifest — SKIP them.
-  // These are game background panels (solid color fills used by meiker's UI),
-  // NOT character parts. Including them blocks the character view.
-  // if (manifest?.static) {
-  //   manifest.static.forEach(s => ids.add(s.id));
-  // }
+  // 1. Add all static layers since they are always visible (rendered in correct Z-index now)
+  (manifest.static_layers || []).forEach(sl => {
+    sl.layers.forEach(layer => ids.add(layer.id));
+  });
 
   // 2. Add layers from FIXED categories (e.g. base body parts)
   // Since fixed categories are NOT in uiCats (they are hidden from tabs),
@@ -270,12 +284,36 @@ function buildVisibleSet() {
 
 // ── DRAW LAYER ────────────────────────────────────────────────────────────────
 async function drawLayer(layer, localPath) {
+  const manifestW = manifest?.canvas_width || 600;
+  const manifestH = manifest?.canvas_height || 800;
+  
   try {
     const img = await loadImage(localPath);
     ctx.globalAlpha = layer.opacity ?? 1;
-    ctx.drawImage(img, layer.x ?? 0, layer.y ?? 0);
+    // If local image size matches the canvas, it's already embedded at correct position, so draw at (0, 0)
+    if (img.naturalWidth === manifestW && img.naturalHeight === manifestH) {
+      ctx.drawImage(img, 0, 0);
+    } else {
+      ctx.drawImage(img, layer.x ?? 0, layer.y ?? 0);
+    }
     ctx.globalAlpha = 1;
-  } catch (_) { /* silently skip missing images */ }
+  } catch (_) {
+    // Try CDN fallback
+    if (layer.cdn_url) {
+      try {
+        const img = await loadImage(layer.cdn_url);
+        ctx.globalAlpha = layer.opacity ?? 1;
+        if (img.naturalWidth === manifestW && img.naturalHeight === manifestH) {
+          ctx.drawImage(img, 0, 0);
+        } else {
+          ctx.drawImage(img, layer.x ?? 0, layer.y ?? 0);
+        }
+        ctx.globalAlpha = 1;
+      } catch (e) {
+        console.error("Failed to load CDN fallback", e);
+      }
+    }
+  }
 }
 
 function loadImage(url) {

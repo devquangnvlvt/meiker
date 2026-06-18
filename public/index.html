@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meiker Data Scraper</title>
+    <title>Meiker Downloader</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,105 +17,70 @@
                 <div class="logo">
                     <span class="logo-icon">🎨</span>
                     <div>
-                        <h1>Meiker Data Scraper</h1>
-                        <p class="subtitle">Download game data & assets from meiker.io</p>
+                        <h1>Meiker Downloader</h1>
+                        <p class="subtitle">Tải dữ liệu game từ meiker.io về máy tính của bạn</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Search Section -->
-        <section class="search-section">
-            <div class="search-box">
-                <div class="search-input-group">
-                    <label for="gameId">Nhập Game ID</label>
-                    <div class="input-row">
-                        <span class="input-prefix">meiker.io/play/</span>
-                        <input type="text" id="gameId" placeholder="12475" autofocus>
-                        <span class="input-suffix">/online.html</span>
+        <!-- Downloader Panel -->
+        <div class="tab-panel">
+            <section class="downloader-section">
+                <div class="scraper-box">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="gameId">Game ID</label>
+                            <div class="input-wrapper">
+                                <span class="input-decor">meiker.io/play/</span>
+                                <input type="text" id="gameId" placeholder="15459" autofocus>
+                                <span class="input-decor">/online.html</span>
+                            </div>
+                            <p class="hint">Nhập mã số ID của game trên meiker.io (Ví dụ: 15459)</p>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="savePath">Đường dẫn lưu thư mục tải về</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="savePath" placeholder="Để trống để lưu vào thư mục downloads mặc định...">
+                            </div>
+                            <p class="hint">Nhập đường dẫn tuyệt đối (Ví dụ: D:\GameDownloads\meiker_game)</p>
+                        </div>
                     </div>
-                    <p class="hint">Ví dụ: Nhập <strong>12475</strong> hoặc <strong>13396</strong></p>
-                </div>
-                <button id="btnFetch" onclick="fetchGameData()">
-                    <span class="btn-icon">🔍</span>
-                    Tải Data
-                </button>
-            </div>
-        </section>
 
-        <!-- Loading -->
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p>Đang tải dữ liệu game...</p>
-        </div>
-
-        <!-- Error -->
-        <div id="error" class="error hidden"></div>
-
-        <!-- Game Info -->
-        <section id="gameInfo" class="game-info hidden">
-            <div class="game-card">
-                <img id="gameIcon" class="game-icon" src="" alt="icon">
-                <div class="game-details">
-                    <h2 id="gameName"></h2>
-                    <div class="game-meta">
-                        <span id="gameOwner" class="badge"></span>
-                        <span id="gameSize" class="badge"></span>
-                        <span id="gameId_display" class="badge"></span>
-                    </div>
-                    <div id="gameTags" class="tags"></div>
-                </div>
-                <div class="game-actions">
-                    <button class="btn-download-all" onclick="downloadAllData()">
-                        ⬇️ Tải tất cả Assets
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Data Content -->
-        <section id="dataContent" class="data-content hidden">
-            <!-- Category Tabs -->
-            <div class="tabs-bar" id="tabsBar"></div>
-
-            <!-- Items Grid -->
-            <div class="items-container" id="itemsContainer">
-                <div class="items-header">
-                    <h3 id="categoryTitle">Chọn một danh mục bên trên</h3>
-                    <div class="items-actions">
-                        <button class="btn-sm" onclick="selectAll()">Chọn tất cả</button>
-                        <button class="btn-sm" onclick="deselectAll()">Bỏ chọn</button>
-                        <button class="btn-sm btn-primary" onclick="downloadSelected()">
-                            ⬇️ Tải đã chọn (<span id="selectedCount">0</span>)
+                    <div class="actions-row">
+                        <button id="btnStartDownload" onclick="startScrape()">
+                            <span class="btn-icon">⚡</span> Bắt đầu Tải xuống
                         </button>
                     </div>
                 </div>
-                <div class="items-grid" id="itemsGrid"></div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Download Progress -->
-        <div id="downloadProgress" class="download-progress hidden">
-            <div class="progress-header">
-                <span>Đang tải xuống...</span>
-                <span id="progressText">0/0</span>
-            </div>
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
-            </div>
-            <div id="downloadLog" class="download-log"></div>
+            <!-- Console Log Terminal -->
+            <section id="terminalSection" class="terminal-section hidden">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="title-text">Console Output - Scraper</span>
+                    </div>
+                    <div class="terminal-status">
+                        Trạng thái: <span id="statusBadge" class="status-ready">Đang chờ</span>
+                    </div>
+                    <div class="terminal-actions">
+                        <button class="btn-term-action" onclick="copyConsoleLogs()">📋 Sao chép</button>
+                        <button class="btn-term-action" onclick="clearConsoleLogs()">🧹 Xóa log</button>
+                    </div>
+                </div>
+                <div class="terminal-body">
+                    <pre id="logOutput">Sẵn sàng tải game. Nhấp "Bắt đầu Tải xuống" để bắt đầu...</pre>
+                </div>
+            </section>
         </div>
-
-        <!-- Raw JSON Viewer -->
-        <section id="rawJson" class="raw-json hidden">
-            <div class="section-header">
-                <h3>📄 Raw Data JSON</h3>
-                <button class="btn-sm" onclick="copyJson()">📋 Copy JSON</button>
-            </div>
-            <pre id="jsonViewer"></pre>
-        </section>
     </div>
 
+    <!-- Scripts -->
     <script src="app.js"></script>
 </body>
 </html>

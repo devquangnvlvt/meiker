@@ -1,8 +1,9 @@
-const GAME_ID = "18554";
+const GAME_ID = new URLSearchParams(location.search).get('id') || "18554";
 const BASE_URL = "https://cdn.meiker.io/";
 
 let rawData = null;
 let uiConfig = null;
+let manifest = null;
 
 // Map of url-hash -> { localPath, cdnUrl }
 let assetMap = {};
@@ -65,6 +66,15 @@ function getHashKey(url) {
 // DATA LOADING
 // ──────────────────────────────────────────────
 async function loadData() {
+  try {
+    const r = await fetch(`/downloads/meiker_${GAME_ID}/manifest.json`);
+    if (r.ok) {
+      manifest = await r.json();
+    }
+  } catch (e) {
+    console.warn("No manifest.json", e);
+  }
+
   try {
     const r = await fetch(`/downloads/meiker_${GAME_ID}/raw_data.json`);
     rawData = await r.json();
@@ -355,14 +365,34 @@ function renderCanvas() {
     const fallback = entry ? entry.cdnUrl : node.rawUrl;
 
     const img = document.createElement("img");
-    img.src = src;
+    img.style.position = "absolute";
+    
+    // Set default positioned styling until loaded
+    img.style.left = (node.x || 0) + "px";
+    img.style.top = (node.y || 0) + "px";
+
+    img.onload = function () {
+      const cw = (manifest && manifest.canvas_width) || (uiConfig && uiConfig.canvas_width) || 600;
+      const ch = (manifest && manifest.canvas_height) || (uiConfig && uiConfig.canvas_height) || 800;
+      if (img.naturalWidth === cw && img.naturalHeight === ch) {
+        img.style.left = "0px";
+        img.style.top = "0px";
+        img.style.width = "100%";
+        img.style.height = "100%";
+      } else {
+        img.style.left = (node.x || 0) + "px";
+        img.style.top = (node.y || 0) + "px";
+        img.style.width = "auto";
+        img.style.height = "auto";
+      }
+    };
+
     img.onerror = function () {
       this.onerror = null;
       this.src = fallback;
     };
-    img.style.position = "absolute";
-    img.style.left = node.x + "px";
-    img.style.top = node.y + "px";
+
+    img.src = src;
     container.appendChild(img);
   });
 }
