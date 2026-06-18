@@ -841,7 +841,11 @@ def scrape_game(game_id, custom_dir=None):
 
     # 3. Tao thu muc goc
     if custom_dir:
-        save_dir = os.path.abspath(custom_dir)
+        custom_dir = os.path.abspath(custom_dir)
+        if os.path.basename(custom_dir) != f"meiker_{game_id}":
+            save_dir = os.path.join(custom_dir, f"meiker_{game_id}")
+        else:
+            save_dir = custom_dir
     else:
         save_dir = os.path.join(os.getcwd(), 'downloads', f"meiker_{game_id}")
     os.makedirs(save_dir, exist_ok=True)
