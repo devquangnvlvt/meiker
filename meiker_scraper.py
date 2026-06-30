@@ -24,6 +24,18 @@ import os, sys, json, re, subprocess, concurrent.futures, time
 import urllib.request, ssl
 from PIL import Image
 
+# Reconfigure stdout/stderr to utf-8 to prevent UnicodeEncodeError on Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+if hasattr(sys.stderr, 'reconfigure'):
+    try:
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 UA       = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
 BASE_CDN = 'https://cdn.meiker.io/'
 
@@ -33,22 +45,24 @@ BASE_CDN = 'https://cdn.meiker.io/'
 
 def fetch_with_curl(url):
     print(f"[FETCH] {url}")
+    # Thu dung urllib cua Python truoc de tranh loi block tien trinh hoac antivirus tren moi truong non-interactive
     try:
-        result = subprocess.run(
-            ['curl.exe', '-s', '-L', '-A', UA,
-             '--connect-timeout', '10', '--max-time', '45', url],
-            capture_output=True, check=True)
-        return result.stdout.decode('utf-8', errors='ignore')
-    except subprocess.CalledProcessError:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        req = urllib.request.Request(url, headers={'User-Agent': UA})
+        with urllib.request.urlopen(req, context=ctx, timeout=15) as r:
+            return r.read().decode('utf-8')
+    except Exception as urllib_err:
+        # Neu urllib that bai thi moi fallback qua curl.exe
         try:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            req = urllib.request.Request(url, headers={'User-Agent': UA})
-            with urllib.request.urlopen(req, context=ctx, timeout=30) as r:
-                return r.read().decode('utf-8')
-        except Exception as ex:
-            print(f"[ERROR] fetch failed: {ex}")
+            result = subprocess.run(
+                ['curl.exe', '-s', '-L', '-A', UA,
+                 '--connect-timeout', '10', '--max-time', '15', url],
+                capture_output=True, check=True)
+            return result.stdout.decode('utf-8', errors='ignore')
+        except Exception as curl_err:
+            print(f"[ERROR] Tải link thất bại. Chi tiết lỗi:\n  - Urllib: {urllib_err}\n  - Curl: {curl_err}")
             return None
 
 def download_file(url, filepath):
@@ -597,34 +611,45 @@ def scrape_game(game_id, custom_dir=None):
     url  = f"https://meiker.io/play/{game_id}/online.html"
     html = fetch_with_curl(url)
     if not html:
-        print("[!] Khong lay duoc trang game.")
-        return
+        print("[ERROR] Không thể lấy được trang game. Vui lòng kiểm tra kết nối mạng hoặc tính chính xác của Game ID.")
+        sys.exit(1)
 
     # 2. Parse config
     config = extract_game_config(html, game_id)
     if not config:
-        return
+        print("[ERROR] Không tìm thấy cấu hình game meiker. Game ID có thể không tồn tại hoặc game đã bị gỡ.")
+        sys.exit(1)
 
     game_name = config['name']
     print(f"[+] Game: {game_name}")
 
     # 3. Tao thu muc goc
-    if custom_dir:
-        custom_dir = os.path.abspath(custom_dir)
-        if os.path.basename(custom_dir) != f"meiker_{game_id}":
-            save_dir = os.path.join(custom_dir, f"meiker_{game_id}")
+    try:
+        if custom_dir:
+            custom_dir = os.path.abspath(custom_dir)
+            if os.path.basename(custom_dir) != f"meiker_{game_id}":
+                save_dir = os.path.join(custom_dir, f"meiker_{game_id}")
+            else:
+                save_dir = custom_dir
         else:
-            save_dir = custom_dir
-    else:
-        save_dir = os.path.join(os.getcwd(), 'downloads', f"meiker_{game_id}")
-    os.makedirs(save_dir, exist_ok=True)
+            save_dir = os.path.join(os.getcwd(), 'downloads', f"meiker_{game_id}")
+        os.makedirs(save_dir, exist_ok=True)
+    except Exception as e:
+        print(f"[ERROR] Không thể tạo thư mục lưu trữ tại: {save_dir}. Chi tiết lỗi: {e}")
+        sys.exit(1)
 
     # 4. Fetch raw_data.json
     print("\n[+] Dang lay du lieu...")
     raw_str = fetch_with_curl(config['data_url'])
     if not raw_str:
-        return
-    raw_data = json.loads(raw_str)
+        print("[ERROR] Không tải được dữ liệu chi tiết của game (raw_data.json).")
+        sys.exit(1)
+    
+    try:
+        raw_data = json.loads(raw_str)
+    except Exception as e:
+        print(f"[ERROR] Không thể phân tích cú pháp file raw_data (JSON không hợp lệ). Chi tiết lỗi: {e}")
+        sys.exit(1)
 
     # 5. Phan tich cau truc
     print("[+] Dang phan tich cau truc bo phan...")
@@ -743,4 +768,10 @@ if __name__ == '__main__':
     if len(sys.argv) >= 3:
         custom_dir = sys.argv[2].strip()
         
-    scrape_game(gid, custom_dir)
+    try:
+        scrape_game(gid, custom_dir)
+    except Exception as e:
+        import traceback
+        print(f"\n[ERROR] Đã xảy ra lỗi hệ thống nghiêm trọng trong quá trình tải:")
+        print(traceback.format_exc())
+        sys.exit(1)

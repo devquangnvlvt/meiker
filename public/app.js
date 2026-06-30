@@ -3,7 +3,7 @@ async function startScrape() {
     const gameIdInput = document.getElementById('gameId');
     const savePathInput = document.getElementById('savePath');
     const btnStart = document.getElementById('btnStartDownload');
-    
+
     const gameId = gameIdInput.value.trim();
     if (!gameId) {
         alert('Vui lòng nhập Game ID trước khi tải!');
@@ -22,13 +22,13 @@ async function startScrape() {
     // Prepare UI
     btnStart.disabled = true;
     btnStart.innerHTML = `<span class="spinner" style="width:16px;height:16px;margin:0;display:inline-block;vertical-align:middle;border-width:2px;"></span> Đang tải...`;
-    
+
     const termSection = document.getElementById('terminalSection');
     termSection.classList.remove('hidden');
-    
+
     const logOutput = document.getElementById('logOutput');
     logOutput.textContent = `[INIT] Bắt đầu gửi yêu cầu tải game ID: ${gameId}...\n`;
-    
+
     const statusBadge = document.getElementById('statusBadge');
     statusBadge.textContent = 'Đang tải';
     statusBadge.className = 'status-running';
@@ -62,10 +62,10 @@ async function startScrape() {
             if (done) break;
 
             const text = decoder.decode(value, { stream: true });
-            
+
             // Reformat progress carriage returns if they exist so it displays nicely on the terminal
             const formattedText = text.replace(/\r/g, '\n');
-            
+
             logOutput.textContent += formattedText;
             scrollToBottom();
         }
@@ -75,12 +75,12 @@ async function startScrape() {
         if (finalLog.includes('--- SUCCESS ---')) {
             statusBadge.textContent = 'Thành công';
             statusBadge.className = 'status-success';
-        } else if (finalLog.includes('--- ERROR:')) {
+        } else {
             statusBadge.textContent = 'Lỗi';
             statusBadge.className = 'status-error';
-        } else {
-            statusBadge.textContent = 'Đã xong';
-            statusBadge.className = 'status-success';
+            if (!finalLog.includes('--- ERROR:')) {
+                logOutput.textContent += `\n[LỖI HỆ THỐNG] Tiến trình tải bị ngắt quãng hoặc gặp sự cố không mong muốn.\n`;
+            }
         }
 
     } catch (err) {
